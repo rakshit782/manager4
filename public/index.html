@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Modern Shopify Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <header class="navbar">
+    <div class="nav-container">
+      <h1 class="logo">🛍️ Shopify Dashboard</h1>
+      <div class="nav-actions">
+        <div class="view-toggle">
+          <button id="tableViewBtn" class="toggle-btn active" aria-label="Table View">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Table
+          </button>
+          <button id="cardViewBtn" class="toggle-btn" aria-label="Card View">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="4"></rect>
+              <rect x="3" y="11" width="18" height="4"></rect>
+              <rect x="3" y="19" width="18" height="2"></rect>
+            </svg>
+            Cards
+          </button>
+        </div>
+        <button id="addProductBtn" class="btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+          Add Product
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    <!-- Controls Section -->
+    <div class="controls-section">
+      <div class="pagination-controls">
+        <label for="rowsPerPageSelect">Show: </label>
+        <select id="rowsPerPageSelect" class="select-modern">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+        <span class="per-page-label">per page</span>
+      </div>
+      <div class="results-info">
+        <span id="resultsInfo">Showing 1-10 of 100 results</span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading products...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="errorState" class="error-state hidden">
+      <div class="error-icon">⚠️</div>
+      <h3>Failed to load products</h3>
+      <p id="errorMessage">An error occurred while fetching products.</p>
+      <button id="retryBtn" class="btn-secondary">Try Again</button>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="empty-state hidden">
+      <div class="empty-icon">📦</div>
+      <h3>No Products Found</h3>
+      <p>Start by adding your first product to the dashboard.</p>
+      <button id="addFirstProductBtn" class="btn-primary">Add Product</button>
+    </div>
+
+    <!-- Products Container -->
+    <section id="productsContainer" class="hidden">
+      <!-- Table View -->
+      <div id="tableView" class="table-container">
+        <table class="products-table">
+          <thead>
+            <tr>
+              <th class="sortable" data-sort="image">
+                <div class="th-content">
+                  <span>Image</span>
+                </div>
+              </th>
+              <th class="sortable" data-sort="title">
+                <div class="th-content">
+                  <span>Product</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th class="sortable" data-sort="variants">
+                <div class="th-content">
+                  <span>Variants</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th class="sortable" data-sort="price">
+                <div class="th-content">
+                  <span>Price</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th class="sortable" data-sort="vendor">
+                <div class="th-content">
+                  <span>Vendor</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th class="sortable" data-sort="product_type">
+                <div class="th-content">
+                  <span>Type</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th class="sortable" data-sort="status">
+                <div class="th-content">
+                  <span>Status</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th class="sortable" data-sort="inventory">
+                <div class="th-content">
+                  <span>Inventory</span>
+                  <svg class="sort-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 9l4-4 4 4"></path>
+                    <path d="M16 15l-4 4-4-4"></path>
+                  </svg>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  <span>Actions</span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Card View -->
+      <div id="cardView" class="cards-view hidden">
+        <div id="cardsContainer" class="cards-grid"></div>
+      </div>
+    </section>
+
+    <!-- Pagination Navigation -->
+    <div id="paginationContainer" class="pagination-container hidden">
+      <div class="pagination-info">
+        <span id="pageInfo">Page 1 of 10</span>
+      </div>
+      <nav class="pagination-nav" aria-label="Products pagination">
+        <button id="firstPageBtn" class="pagination-btn" aria-label="First page" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 17l-5-5 5-5"></path>
+            <path d="M18 17l-5-5 5-5"></path>
+          </svg>
+        </button>
+        <button id="prevPageBtn" class="pagination-btn" aria-label="Previous page" disabled>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
+        <div id="pageNumbers" class="page-numbers"></div>
+        <button id="nextPageBtn" class="pagination-btn" aria-label="Next page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6"></path>
+          </svg>
+        </button>
+        <button id="lastPageBtn" class="pagination-btn" aria-label="Last page">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 17l5-5-5-5"></path>
+            <path d="M6 17l5-5-5-5"></path>
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </main>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Product</h2>
+        <button class="modal-close" aria-label="Close modal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <form id="productForm" class="modal-body">
+        <div class="form-group">
+          <label for="productTitle">Product Title *</label>
+          <input type="text" id="productTitle" name="title" required aria-describedby="titleError">
+          <div id="titleError" class="field-error" role="alert"></div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productVendor">Vendor *</label>
+            <input type="text" id="productVendor" name="vendor" required aria-describedby="vendorError">
+            <div id="vendorError" class="field-error" role="alert"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="productType">Product Type *</label>
+            <select id="productType" name="product_type" required aria-describedby="typeError">
+              <option value="">Select type...</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Home & Garden">Home & Garden</option>
+              <option value="Sports & Recreation">Sports & Recreation</option>
+              <option value="Accessories">Accessories</option>
+              <option value="Books">Books</option>
+              <option value="Other">Other</option>
+            </select>
+            <div id="typeError" class="field-error" role="alert"></div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productPrice">Price *</label>
+            <div class="input-group">
+              <span class="input-prefix">$</span>
+              <input type="number" id="productPrice" name="price" step="0.01" min="0" required aria-describedby="priceError">
+            </div>
+            <div id="priceError" class="field-error" role="alert"></div>
+          </div>
+          
+          <div class="form-group">
+            <label for="productInventory">Inventory *</label>
+            <input type="number" id="productInventory" name="inventory_quantity" min="0" required aria-describedby="inventoryError">
+            <div id="inventoryError" class="field-error" role="alert"></div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="productStatus">Status *</label>
+            <select id="productStatus" name="status" required>
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="productImage">Image URL</label>
+            <input type="url" id="productImage" name="image" placeholder="https://example.com/image.jpg" aria-describedby="imageError">
+            <div id="imageError" class="field-error" role="alert"></div>
+          </div>
+        </div>
+      </form>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+        <button type="submit" form="productForm" class="btn-primary" id="saveBtn">
+          <span class="btn-text">Save Product</span>
+          <div class="btn-spinner hidden"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="modal" role="dialog" aria-labelledby="deleteTitle" aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content modal-small">
+      <div class="modal-header">
+        <h2 id="deleteTitle">Delete Product</h2>
+      </div>
+      <div class="modal-body">
+        <div class="delete-content">
+          <div class="delete-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="15" y1="9" x2="9" y2="15"></line>
+              <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p>Are you sure you want to delete <strong id="deleteProductName">this product</strong>? This action cannot be undone.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+        <button type="button" class="btn-danger" id="confirmDeleteBtn">
+          <span class="btn-text">Delete Product</span>
+          <div class="btn-spinner hidden"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- JavaScript -->
+  <script>
+    // Mock Data
+    const mockProducts = [
+      {
+        id: 1,
+        title: "Wireless Bluetooth Headphones",
+        vendor: "AudioTech",
+        product_type: "Electronics",
+        status: "active",
+        variants: [
+          {id: 1, price: "79.99", inventory_quantity: 50},
+          {id: 2, price: "89.99", inventory_quantity: 30}
+        ],
+        images: [
+          {src: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"},
+          {src: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400"}
+        ],
+        created_at: "2025-01-15T10:30:00Z",
+        updated_at: "2025-01-20T14:45:00Z"
+      },
+      {
+        id: 2,
+        title: "Organic Cotton T-Shirt",
+        vendor: "EcoWear",
+        product_type: "Clothing",
+        status: "active",
+        variants: [
+          {id: 3, price: "29.99", inventory_quantity: 100},
+          {id: 4, price: "34.99", inventory_quantity: 75}
+        ],
+        images: [
+          {src: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400"},
+          {src: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=400"}
+        ],
+        created_at: "2025-01-10T09:15:00Z",
+        updated_at: "2025-01-18T11:30:00Z"
+      },
+      {
+        id: 3,
+        title: "Smart Fitness Watch",
+        vendor: "TechFit",
+        product_type: "Electronics",
+        status: "active",
+        variants: [
+          {id: 5, price: "199.99", inventory_quantity: 25}
+        ],
+        images: [
+          {src: "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?w=400"}
+        ],
+        created_at: "2025-01-12T16:20:00Z",
+        updated_at: "2025-01-19T13:10:00Z"
+      },
+      {
+        id: 4,
+        title: "Ceramic Coffee Mug Set",
+        vendor: "HomeEssentials",
+        product_type: "Home & Garden",
+        status: "active",
+        variants: [
+          {id: 6, price: "24.99", inventory_quantity: 200}
+        ],
+        images: [
+          {src: "https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400"},
+          {src: "https://images.unsplash.com/photo-1572119591000-46b1eeb34ed6?w=400"}
+        ],
+        created_at: "2025-01-08T12:00:00Z",
+        updated_at: "2025-01-16T10:45:00Z"
+      },
+      {
+        id: 5,
+        title: "Leather Crossbody Bag",
+        vendor: "LuxLeather",
+        product_type: "Accessories",
+        status: "active",
+        variants: [
+          {id: 7, price: "149.99", inventory_quantity: 15},
+          {id: 8, price: "169.99", inventory_quantity: 10}
+        ],
+        images: [
+          {src: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400"}
+        ],
+        created_at: "2025-01-14T14:30:00Z",
+        updated_at: "2025-01-21T09:20:00Z"
+      },
+      {
+        id: 6,
+        title: "Yoga Mat Premium",
+        vendor: "FitLife",
+        product_type: "Sports & Recreation",
+        status: "active",
+        variants: [
+          {id: 9, price: "49.99", inventory_quantity: 60}
+        ],
+        images: [
+          {src: "https://images.unsplash.com/photo-1506629905607-d13b7a843bdc?w=400"}
+        ],
+        created_at: "2025-01-11T11:15:00Z",
+        updated_at: "2025-01-17T15:30:00Z"
+      }
+    ];
+
+    // Dashboard Application Class
+    class ShopifyDashboard {
+      constructor() {
+        this.products = [...mockProducts];
+        this.currentPage = 1;
+        this.rowsPerPage = 10;
+        this.currentView = 'table';
+        this.sortColumn = null;
+        this.sortDirection = 'asc';
+        this.editingProduct = null;
+        this.carouselIntervals = new Map();
+        
+        this.initializeEventListeners();
+        this.renderProducts();
+      }
+
+      // Initialize all event listeners
+      initializeEventListeners() {
+        // View toggle buttons
+        document.getElementById('tableViewBtn').addEventListener('click', () => this.switchView('table'));
+        document.getElementById('cardViewBtn').addEventListener('click', () => this.switchView('cards'));
+        
+        // Pagination controls
+        document.getElementById('rowsPerPageSelect').addEventListener('change', (e) => {
+          this.rowsPerPage = parseInt(e.target.value);
+          this.currentPage = 1;
+          this.renderProducts();
+        });
+        
+        // Pagination navigation
+        document.getElementById('firstPageBtn').addEventListener('click', () => this.goToPage(1));
+        document.getElementById('prevPageBtn').addEventListener('click', () => this.goToPage(this.currentPage - 1));
+        document.getElementById('nextPageBtn').addEventListener('click', () => this.goToPage(this.currentPage + 1));
+        document.getElementById('lastPageBtn').addEventListener('click', () => this.goToPage(this.getTotalPages()));
+        
+        // Add product buttons
+        document.getElementById('addProductBtn').addEventListener('click', () => this.openProductModal());
+        document.getElementById('addFirstProductBtn').addEventListener('click', () => this.openProductModal());
+        
+        // Modal controls
+        document.getElementById('cancelBtn').addEventListener('click', () => this.closeProductModal());
+        document.getElementById('productForm').addEventListener('submit', (e) => this.handleProductSave(e));
+        
+        // Delete modal controls
+        document.getElementById('cancelDeleteBtn').addEventListener('click', () => this.closeDeleteModal());
+        document.getElementById('confirmDeleteBtn').addEventListener('click', () => this.handleProductDelete());
+        
+        // Modal close buttons and backdrop clicks
+        document.querySelectorAll('.modal-close').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const modal = e.target.closest('.modal');
+            this.closeModal(modal);
+          });
+        });
+        
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+          backdrop.addEventListener('click', (e) => {
+            const modal = e.target.closest('.modal');
+            this.closeModal(modal);
+          });
+        });
+        
+        // Table sorting
+        document.querySelectorAll('.sortable').forEach(header => {
+          header.addEventListener('click', () => {
+            const sortKey = header.dataset.sort;
+            this.handleSort(sortKey);
+          });
+        });
+        
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => this.handleKeyboardNavigation(e));
+        
+        // Form validation
+        this.setupFormValidation();
+      }
+
+      // Switch between table and card views
+      switchView(view) {
+        this.currentView = view;
+        
+        // Update active button
+        document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(view === 'table' ? 'tableViewBtn' : 'cardViewBtn').classList.add('active');
+        
+        // Show/hide appropriate view
+        const tableView = document.getElementById('tableView');
+        const cardView = document.getElementById('cardView');
+        
+        if (view === 'table') {
+          tableView.classList.remove('hidden');
+          cardView.classList.add('hidden');
+          this.clearCarouselIntervals();
+        } else {
+          tableView.classList.add('hidden');
+          cardView.classList.remove('hidden');
+          this.startCarousels();
+        }
+      }
+
+      // Handle sorting
+      handleSort(column) {
+        if (this.sortColumn === column) {
+          this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+          this.sortColumn = column;
+          this.sortDirection = 'asc';
+        }
+        
+        this.sortProducts();
+        this.renderProducts();
+        this.updateSortIcons();
+      }
+
+      // Sort products array
+      sortProducts() {
+        this.products.sort((a, b) => {
+          let aVal, bVal;
+          
+          switch (this.sortColumn) {
+            case 'title':
+            case 'vendor':
+            case 'product_type':
+            case 'status':
+              aVal = a[this.sortColumn].toLowerCase();
+              bVal = b[this.sortColumn].toLowerCase();
+              break;
+            case 'price':
+              aVal = Math.min(...a.variants.map(v => parseFloat(v.price)));
+              bVal = Math.min(...b.variants.map(v => parseFloat(v.price)));
+              break;
+            case 'inventory':
+              aVal = a.variants.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0);
+              bVal = b.variants.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0);
+              break;
+            case 'variants':
+              aVal = a.variants.length;
+              bVal = b.variants.length;
+              break;
+            default:
+              return 0;
+          }
+          
+          if (aVal < bVal) return this.sortDirection === 'asc' ? -1 : 1;
+          if (aVal > bVal) return this.sortDirection === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      // Update sort icons
+      updateSortIcons() {
+        document.querySelectorAll('.sortable').forEach(header => {
+          const icon = header.querySelector('.sort-icon');
+          header.classList.remove('sorted-asc', 'sorted-desc');
+          
+          if (header.dataset.sort === this.sortColumn) {
+            header.classList.add(`sorted-${this.sortDirection}`);
+          }
+        });
+      }
+
+      // Get current page products
+      getCurrentPageProducts() {
+        const startIndex = (this.currentPage - 1) * this.rowsPerPage;
+        const endIndex = startIndex + this.rowsPerPage;
+        return this.products.slice(startIndex, endIndex);
+      }
+
+      // Get total pages
+      getTotalPages() {
+        return Math.ceil(this.products.length / this.rowsPerPage);
+      }
+
+      // Go to specific page
+      goToPage(page) {
+        const totalPages = this.getTotalPages();
+        if (page < 1 || page > totalPages) return;
+        
+        this.currentPage = page;
+        this.renderProducts();
+      }
+
+      // Render products based on current view
+      renderProducts() {
+        this.hideLoadingState();
+        
+        if (this.products.length === 0) {
+          this.showEmptyState();
+          return;
+        }
+        
+        this.hideEmptyState();
+        this.showProductsContainer();
+        
+        if (this.currentView === 'table') {
+          this.renderTableView();
+        } else {
+          this.renderCardView();
+        }
+        
+        this.renderPagination();
+        this.updateResultsInfo();
+      }
+
+      // Render table view
+      renderTableView() {
+        const tableBody = document.getElementById('tableBody');
+        const currentProducts = this.getCurrentPageProducts();
+        
+        tableBody.innerHTML = currentProducts.map(product => {
+          const img = product.images?.[0]?.src || 'https://via.placeholder.com/60';
+          const prices = product.variants.map(v => parseFloat(v.price)).sort((a, b) => a - b);
+          const priceRange = prices.length > 1 ? `$${prices[0]} - $${prices[prices.length - 1]}` : `$${prices[0]}`;
+          const inventory = product.variants.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0);
+          
+          return `
+            <tr class="product-row" data-product-id="${product.id}">
+              <td>
+                <img src="${img}" alt="${product.title}" class="product-thumb" loading="lazy">
+              </td>
+              <td>
+                <div class="product-title">${product.title}</div>
+              </td>
+              <td>
+                <span class="variant-count">${product.variants.length}</span>
+              </td>
+              <td>
+                <span class="price-range">${priceRange}</span>
+              </td>
+              <td>${product.vendor}</td>
+              <td>${product.product_type}</td>
+              <td>
+                <span class="status-badge status-${product.status}">${product.status}</span>
+              </td>
+              <td>
+                <span class="inventory-count">${inventory}</span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-icon edit-btn" onclick="dashboard.editProduct(${product.id})" aria-label="Edit product">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button class="btn-icon delete-btn" onclick="dashboard.confirmDeleteProduct(${product.id})" aria-label="Delete product">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render card view
+      renderCardView() {
+        const cardsContainer = document.getElementById('cardsContainer');
+        const currentProducts = this.getCurrentPageProducts();
+        
+        this.clearCarouselIntervals();
+        
+        cardsContainer.innerHTML = currentProducts.map(product => {
+          const images = product.images?.length ? product.images.map(img => img.src) : ['https://via.placeholder.com/300x200'];
+          const prices = product.variants.map(v => parseFloat(v.price)).sort((a, b) => a - b);
+          const priceRange = prices.length > 1 ? `$${prices[0]} - $${prices[prices.length - 1]}` : `$${prices[0]}`;
+          const inventory = product.variants.reduce((sum, v) => sum + (v.inventory_quantity || 0), 0);
+          const carouselId = `carousel-${product.id}`;
+          
+          return `
+            <div class="product-card" data-product-id="${product.id}">
+              <div class="card-image">
+                <div class="image-carousel" id="${carouselId}">
+                  ${images.map((src, idx) => `
+                    <img src="${src}" alt="${product.title}" class="carousel-image ${idx === 0 ? 'active' : ''}" loading="lazy">
+                  `).join('')}
+                </div>
+                <span class="status-tag status-${product.status}">${product.status}</span>
+                ${images.length > 1 ? '<div class="carousel-dots">' + images.map((_, idx) => `<span class="dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></span>`).join('') + '</div>' : ''}
+              </div>
+              
+              <div class="card-content">
+                <h3 class="card-title">${product.title}</h3>
+                <div class="card-price">${priceRange}</div>
+                
+                <div class="card-details">
+                  <div class="card-detail">
+                    <span class="detail-label">Vendor:</span>
+                    <span class="detail-value">${product.vendor}</span>
+                  </div>
+                  <div class="card-detail">
+                    <span class="detail-label">Type:</span>
+                    <span class="detail-value">${product.product_type}</span>
+                  </div>
+                  <div class="card-detail">
+                    <span class="detail-label">Inventory:</span>
+                    <span class="detail-value">${inventory}</span>
+                  </div>
+                  <div class="card-detail">
+                    <span class="detail-label">Variants:</span>
+                    <span class="detail-value">${product.variants.length}</span>
+                  </div>
+                </div>
+                
+                <div class="card-actions">
+                  <button class="btn-secondary btn-small" onclick="dashboard.editProduct(${product.id})">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Edit
+                  </button>
+                  <button class="btn-danger btn-small" onclick="dashboard.confirmDeleteProduct(${product.id})">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3,6 5,6 21,6"></polyline>
+                      <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2V6"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line>
+                      <line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+        // Start carousels for products with multiple images
+        setTimeout(() => this.startCarousels(), 100);
+      }
+
+      // Start image carousels
+      startCarousels() {
+        const currentProducts = this.getCurrentPageProducts();
+        
+        currentProducts.forEach(product => {
+          if (product.images && product.images.length > 1) {
+            const carouselId = `carousel-${product.id}`;
+            const carousel = document.getElementById(carouselId);
+            
+            if (carousel) {
+              let currentIndex = 0;
+              const images = carousel.querySelectorAll('.carousel-image');
+              const dots = carousel.parentNode.querySelectorAll('.dot');
+              
+              const interval = setInterval(() => {
+                // Hide current image and dot
+                images[currentIndex].classList.remove('active');
+                if (dots[currentIndex]) dots[currentIndex].classList.remove('active');
+                
+                // Move to next image
+                currentIndex = (currentIndex + 1) % images.length;
+                
+                // Show next image and dot
+                images[currentIndex].classList.add('active');
+                if (dots[currentIndex]) dots[currentIndex].classList.add('active');
+              }, 3000);
+              
+              this.carouselIntervals.set(carouselId, interval);
+            }
+          }
+        });
+      }
+
+      // Clear all carousel intervals
+      clearCarouselIntervals() {
+        this.carouselIntervals.forEach(interval => clearInterval(interval));
+        this.carouselIntervals.clear();
+      }
+
+      // Render pagination
+      renderPagination() {
+        const totalPages = this.getTotalPages();
+        const paginationContainer = document.getElementById('paginationContainer');
+        
+        if (totalPages <= 1) {
+          paginationContainer.classList.add('hidden');
+          return;
+        }
+        
+        paginationContainer.classList.remove('hidden');
+        
+        // Update page info
+        document.getElementById('pageInfo').textContent = `Page ${this.currentPage} of ${totalPages}`;
+        
+        // Update navigation buttons
+        const firstBtn = document.getElementById('firstPageBtn');
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const lastBtn = document.getElementById('lastPageBtn');
+        
+        firstBtn.disabled = this.currentPage === 1;
+        prevBtn.disabled = this.currentPage === 1;
+        nextBtn.disabled = this.currentPage === totalPages;
+        lastBtn.disabled = this.currentPage === totalPages;
+        
+        // Render page numbers
+        this.renderPageNumbers();
+      }
+
+      // Render page number buttons
+      renderPageNumbers() {
+        const pageNumbers = document.getElementById('pageNumbers');
+        const totalPages = this.getTotalPages();
+        const current = this.currentPage;
+        
+        let pages = [];
+        
+        if (totalPages <= 7) {
+          // Show all pages if 7 or fewer
+          pages = Array.from({length: totalPages}, (_, i) => i + 1);
+        } else {
+          // Show smart pagination with ellipsis
+          if (current <= 4) {
+            pages = [1, 2, 3, 4, 5, '...', totalPages];
+          } else if (current >= totalPages - 3) {
+            pages = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+          } else {
+            pages = [1, '...', current - 1, current, current + 1, '...', totalPages];
+          }
+        }
+        
+        pageNumbers.innerHTML = pages.map(page => {
+          if (page === '...') {
+            return '<span class="page-ellipsis">...</span>';
+          }
+          
+          return `
+            <button class="page-number ${page === current ? 'active' : ''}" 
+                    onclick="dashboard.goToPage(${page})" 
+                    aria-label="Page ${page}"
+                    ${page === current ? 'aria-current="page"' : ''}>
+              ${page}
+            </button>
+          `;
+        }).join('');
+      }
+
+      // Update results info
+      updateResultsInfo() {
+        const total = this.products.length;
+        const start = (this.currentPage - 1) * this.rowsPerPage + 1;
+        const end = Math.min(this.currentPage * this.rowsPerPage, total);
+        
+        document.getElementById('resultsInfo').textContent = 
+          `Showing ${start}-${end} of ${total} results`;
+      }
+
+      // Show/hide different states
+      hideLoadingState() {
+        document.getElementById('loadingState').classList.add('hidden');
+      }
+
+      showEmptyState() {
+        document.getElementById('emptyState').classList.remove('hidden');
+        document.getElementById('productsContainer').classList.add('hidden');
+        document.getElementById('paginationContainer').classList.add('hidden');
+      }
+
+      hideEmptyState() {
+        document.getElementById('emptyState').classList.add('hidden');
+      }
+
+      showProductsContainer() {
+        document.getElementById('productsContainer').classList.remove('hidden');
+      }
+
+      // Modal functions
+      openProductModal(product = null) {
+        const modal = document.getElementById('productModal');
+        const form = document.getElementById('productForm');
+        const title = document.getElementById('modalTitle');
+        
+        this.editingProduct = product;
+        
+        if (product) {
+          // Edit mode
+          title.textContent = 'Edit Product';
+          this.populateForm(product);
+          document.getElementById('saveBtn').querySelector('.btn-text').textContent = 'Update Product';
+        } else {
+          // Create mode
+          title.textContent = 'Add Product';
+          form.reset();
+          document.getElementById('saveBtn').querySelector('.btn-text').textContent = 'Save Product';
+        }
+        
+        this.clearFormErrors();
+        this.showModal(modal);
+      }
+
+      closeProductModal() {
+        const modal = document.getElementById('productModal');
+        this.closeModal(modal);
+      }
+
+      populateForm(product) {
+        document.getElementById('productTitle').value = product.title;
+        document.getElementById('productVendor').value = product.vendor;
+        document.getElementById('productType').value = product.product_type;
+        document.getElementById('productPrice').value = product.variants[0]?.price || '';
+        document.getElementById('productInventory').value = product.variants[0]?.inventory_quantity || '';
+        document.getElementById('productStatus').value = product.status;
+        document.getElementById('productImage').value = product.images?.[0]?.src || '';
+      }
+
+      handleProductSave(e) {
+        e.preventDefault();
+        
+        if (!this.validateForm()) {
+          return;
+        }
+        
+        const formData = new FormData(e.target);
+        const productData = {
+          title: formData.get('title'),
+          vendor: formData.get('vendor'),
+          product_type: formData.get('product_type'),
+          status: formData.get('status'),
+          variants: [{
+            id: Date.now(),
+            price: formData.get('price'),
+            inventory_quantity: parseInt(formData.get('inventory_quantity'))
+          }],
+          images: formData.get('image') ? [{src: formData.get('image')}] : [],
+          updated_at: new Date().toISOString()
+        };
+        
+        this.showSaveLoading(true);
+        
+        // Simulate API call
+        setTimeout(() => {
+          if (this.editingProduct) {
+            // Update existing product
+            const index = this.products.findIndex(p => p.id === this.editingProduct.id);
+            if (index !== -1) {
+              this.products[index] = {...this.products[index], ...productData};
+              this.showToast('Product updated successfully!', 'success');
+            }
+          } else {
+            // Create new product
+            const newProduct = {
+              id: Date.now(),
+              created_at: new Date().toISOString(),
+              ...productData
+            };
+            this.products.unshift(newProduct);
+            this.showToast('Product created successfully!', 'success');
+          }
+          
+          this.showSaveLoading(false);
+          this.closeProductModal();
+          this.renderProducts();
+        }, 1000);
+      }
+
+      editProduct(id) {
+        const product = this.products.find(p => p.id === id);
+        if (product) {
+          this.openProductModal(product);
+        }
+      }
+
+      confirmDeleteProduct(id) {
+        const product = this.products.find(p => p.id === id);
+        if (!product) return;
+        
+        this.deletingProductId = id;
+        document.getElementById('deleteProductName').textContent = product.title;
+        
+        const modal = document.getElementById('deleteModal');
+        this.showModal(modal);
+      }
+
+      closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        this.closeModal(modal);
+      }
+
+      handleProductDelete() {
+        if (!this.deletingProductId) return;
+        
+        this.showDeleteLoading(true);
+        
+        // Simulate API call
+        setTimeout(() => {
+          this.products = this.products.filter(p => p.id !== this.deletingProductId);
+          
+          // Adjust current page if necessary
+          const totalPages = this.getTotalPages();
+          if (this.currentPage > totalPages && totalPages > 0) {
+            this.currentPage = totalPages;
+          }
+          
+          this.showDeleteLoading(false);
+          this.closeDeleteModal();
+          this.renderProducts();
+          this.showToast('Product deleted successfully!', 'success');
+          
+          this.deletingProductId = null;
+        }, 800);
+      }
+
+      // Modal utilities
+      showModal(modal) {
+        modal.classList.add('active');
+        modal.setAttribute('aria-hidden', 'false');
+        
+        // Focus trap
+        const focusableElements = modal.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (focusableElements.length > 0) {
+          focusableElements[0].focus();
+        }
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+      }
+
+      closeModal(modal) {
+        modal.classList.remove('active');
+        modal.setAttribute('aria-hidden', 'true');
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+      }
+
+      // Form validation
+      setupFormValidation() {
+        const form = document.getElementById('productForm');
+        const inputs = form.querySelectorAll('input, select');
+        
+        inputs.forEach(input => {
+          input.addEventListener('blur', () => this.validateField(input));
+          input.addEventListener('input', () => this.clearFieldError(input));
+        });
+      }
+
+      validateForm() {
+        const form = document.getElementById('productForm');
+        const inputs = form.querySelectorAll('input[required], select[required]');
+        let isValid = true;
+        
+        inputs.forEach(input => {
+          if (!this.validateField(input)) {
+            isValid = false;
+          }
+        });
+        
+        return isValid;
+      }
+
+      validateField(field) {
+        const value = field.value.trim();
+        const fieldName = field.name;
+        let error = '';
+        
+        if (field.hasAttribute('required') && !value) {
+          error = 'This field is required';
+        } else if (fieldName === 'price' && value && (isNaN(value) || parseFloat(value) < 0)) {
+          error = 'Please enter a valid price';
+        } else if (fieldName === 'inventory_quantity' && value && (isNaN(value) || parseInt(value) < 0)) {
+          error = 'Please enter a valid inventory quantity';
+        } else if (fieldName === 'image' && value && !this.isValidUrl(value)) {
+          error = 'Please enter a valid URL';
+        }
+        
+        if (error) {
+          this.showFieldError(field, error);
+          return false;
+        } else {
+          this.clearFieldError(field);
+          return true;
+        }
+      }
+
+      showFieldError(field, message) {
+        const errorElement = document.getElementById(field.name + 'Error');
+        if (errorElement) {
+          errorElement.textContent = message;
+          errorElement.style.display = 'block';
+        }
+        field.classList.add('error');
+      }
+
+      clearFieldError(field) {
+        const errorElement = document.getElementById(field.name + 'Error');
+        if (errorElement) {
+          errorElement.textContent = '';
+          errorElement.style.display = 'none';
+        }
+        field.classList.remove('error');
+      }
+
+      clearFormErrors() {
+        const form = document.getElementById('productForm');
+        const errorElements = form.querySelectorAll('.field-error');
+        const inputs = form.querySelectorAll('input, select');
+        
+        errorElements.forEach(error => {
+          error.textContent = '';
+          error.style.display = 'none';
+        });
+        
+        inputs.forEach(input => input.classList.remove('error'));
+      }
+
+      // Loading states
+      showSaveLoading(loading) {
+        const btn = document.getElementById('saveBtn');
+        const text = btn.querySelector('.btn-text');
+        const spinner = btn.querySelector('.btn-spinner');
+        
+        if (loading) {
+          btn.disabled = true;
+          text.style.opacity = '0';
+          spinner.classList.remove('hidden');
+        } else {
+          btn.disabled = false;
+          text.style.opacity = '1';
+          spinner.classList.add('hidden');
+        }
+      }
+
+      showDeleteLoading(loading) {
+        const btn = document.getElementById('confirmDeleteBtn');
+        const text = btn.querySelector('.btn-text');
+        const spinner = btn.querySelector('.btn-spinner');
+        
+        if (loading) {
+          btn.disabled = true;
+          text.style.opacity = '0';
+          spinner.classList.remove('hidden');
+        } else {
+          btn.disabled = false;
+          text.style.opacity = '1';
+          spinner.classList.add('hidden');
+        }
+      }
+
+      // Toast notifications
+      showToast(message, type = 'info') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+          <div class="toast-content">
+            <span class="toast-message">${message}</span>
+            <button class="toast-close" aria-label="Close notification">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        `;
+        
+        // Close button
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+          this.removeToast(toast);
+        });
+        
+        container.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          if (toast.parentNode) {
+            this.removeToast(toast);
+          }
+        }, 5000);
+        
+        // Animate in
+        setTimeout(() => {
+          toast.classList.add('show');
+        }, 10);
+      }
+
+      removeToast(toast) {
+        toast.classList.remove('show');
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+          }
+        }, 300);
+      }
+
+      // Keyboard navigation
+      handleKeyboardNavigation(e) {
+        if (e.key === 'Escape') {
+          const activeModal = document.querySelector('.modal.active');
+          if (activeModal) {
+            this.closeModal(activeModal);
+          }
+        }
+      }
+
+      // Utility functions
+      isValidUrl(string) {
+        try {
+          new URL(string);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+    }
+
+    // Initialize dashboard when DOM is loaded
+    let dashboard;
+    document.addEventListener('DOMContentLoaded', () => {
+      dashboard = new ShopifyDashboard();
+    });
+  </script>
+</body>
+</html>
